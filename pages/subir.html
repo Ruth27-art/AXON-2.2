@@ -1,0 +1,262 @@
+<div class="form-card">
+    <h2>📤 Subir nuevo laboratorio</h2>
+    <p>Comparte tu laboratorio con la comunidad. Los archivos se guardan de forma segura.</p>
+    
+    <form id="formSubir">
+        <div class="form-group">
+            <label class="form-label required">Título del laboratorio</label>
+            <input type="text" id="labNombre" class="form-input" placeholder="Ej: Introducción a la Ciberseguridad" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label required">Descripción</label>
+            <textarea id="labDescripcion" class="form-textarea" rows="4" placeholder="Describe el contenido de tu laboratorio..." required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label required">Autor(es)</label>
+            <input type="text" id="labAutor" class="form-input" placeholder="Ej: Juan Pérez" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label required">Categoría</label>
+            <select id="labCategoria" class="form-select" required>
+                <option value="">Seleccionar categoría</option>
+                <option value="seguridad">🔒 Seguridad Web</option>
+                <option value="crypto">🔐 Criptografía</option>
+                <option value="redes">🌐 Redes</option>
+                <option value="malware">🐛 Análisis de Malware</option>
+                <option value="forensica">🔍 Forensica Digital</option>
+                <option value="programacion">💻 Programación</option>
+                <option value="ia">🧠 Inteligencia Artificial</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label required">Seleccionar archivo (PDF, ZIP, DOC, DOCX)</label>
+            <input type="file" id="labArchivo" class="form-input" accept=".pdf,.zip,.doc,.docx" required>
+            <small class="form-help">Máximo 10MB. Formatos permitidos: PDF, ZIP, DOC, DOCX</small>
+        </div>
+        
+        <!-- Preview del archivo seleccionado -->
+        <div id="previewArchivo" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(0,245,255,0.1); border-radius: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 2rem;">📄</span>
+                <div style="flex: 1;">
+                    <div id="previewNombre" style="font-weight: 500;"></div>
+                    <div id="previewTamaño" style="font-size: 0.875rem; color: #6b6b7a;"></div>
+                </div>
+                <span id="previewTipo" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: rgba(0,212,255,0.2); border-radius: 0.5rem;"></span>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+            🚀 Publicar Laboratorio
+        </button>
+        
+        <div id="msgSubir" style="margin-top: 1rem;"></div>
+    </form>
+</div>
+
+<script>
+    (function() {
+        const form = document.getElementById('formSubir');
+        const msgDiv = document.getElementById('msgSubir');
+        const fileInput = document.getElementById('labArchivo');
+        const previewDiv = document.getElementById('previewArchivo');
+        const previewNombre = document.getElementById('previewNombre');
+        const previewTamaño = document.getElementById('previewTamaño');
+        const previewTipo = document.getElementById('previewTipo');
+        
+        // Obtener usuario actual
+        function obtenerUsuario() {
+            try {
+                const usuario = sessionStorage.getItem('axon_usuario_actual');
+                if (usuario) {
+                    return JSON.parse(usuario);
+                }
+            } catch(e) {}
+            return null;
+        }
+        
+        const usuarioActual = obtenerUsuario();
+        
+        // Verificar sesión
+        if (!usuarioActual) {
+            msgDiv.innerHTML = '<div class="alert alert-error">⚠️ Debes iniciar sesión para subir laboratorios. Redirigiendo...</div>';
+            form.style.display = 'none';
+            setTimeout(() => {
+                window.location.hash = 'login';
+            }, 2000);
+        }
+        
+        // Autocompletar autor si hay usuario
+        const autorInput = document.getElementById('labAutor');
+        if (autorInput && usuarioActual) {
+            autorInput.value = usuarioActual.nombre || usuarioActual.email;
+        }
+        
+        // Preview del archivo seleccionado
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                    const fileExt = file.name.split('.').pop().toUpperCase();
+                    
+                    previewNombre.textContent = file.name;
+                    previewTamaño.textContent = `${sizeMB} MB`;
+                    previewTipo.textContent = fileExt;
+                    previewDiv.style.display = 'block';
+                } else {
+                    previewDiv.style.display = 'none';
+                }
+            });
+        }
+        
+        // Función para guardar archivo en localStorage
+        function guardarArchivo(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve({
+                        nombre: file.name,
+                        tamaño: file.size,
+                        tipo: file.type,
+                        extension: file.name.split('.').pop(),
+                        data: e.target.result
+                    });
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // Subir formulario
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const titulo = document.getElementById('labNombre').value.trim();
+                const descripcion = document.getElementById('labDescripcion').value.trim();
+                const autor = document.getElementById('labAutor').value.trim();
+                const categoria = document.getElementById('labCategoria').value;
+                const archivo = fileInput.files[0];
+                
+                // Validaciones
+                if (!titulo) {
+                    msgDiv.innerHTML = '<div class="alert alert-error">⚠️ Ingresa el título del laboratorio</div>';
+                    return;
+                }
+                
+                if (!descripcion) {
+                    msgDiv.innerHTML = '<div class="alert alert-error">⚠️ Ingresa una descripción</div>';
+                    return;
+                }
+                
+                if (!autor) {
+                    msgDiv.innerHTML = '<div class="alert alert-error">⚠️ Ingresa el nombre del autor</div>';
+                    return;
+                }
+                
+                if (!categoria) {
+                    msgDiv.innerHTML = '<div class="alert alert-error">⚠️ Selecciona una categoría</div>';
+                    return;
+                }
+                
+                if (!archivo) {
+                    msgDiv.innerHTML = '<div class="alert alert-error">⚠️ Selecciona un archivo para subir</div>';
+                    return;
+                }
+                
+                // Validar tamaño (10MB)
+                if (archivo.size > 10 * 1024 * 1024) {
+                    msgDiv.innerHTML = '<div class="alert alert-error">⚠️ El archivo no debe superar los 10MB</div>';
+                    return;
+                }
+                
+                // Validar tipo
+                const extensionesPermitidas = ['pdf', 'zip', 'doc', 'docx'];
+                const extension = archivo.name.split('.').pop().toLowerCase();
+                if (!extensionesPermitidas.includes(extension)) {
+                    msgDiv.innerHTML = '<div class="alert alert-error">⚠️ Formato no permitido. Usa PDF, ZIP, DOC o DOCX</div>';
+                    return;
+                }
+                
+                // Deshabilitar botón
+                const btn = form.querySelector('button[type="submit"]');
+                const originalText = btn.textContent;
+                btn.textContent = '⏳ Subiendo archivo...';
+                btn.disabled = true;
+                msgDiv.innerHTML = '<div class="alert alert-info">📤 Procesando archivo, por favor espera...</div>';
+                
+                try {
+                    // Guardar archivo
+                    const archivoGuardado = await guardarArchivo(archivo);
+                    
+                    // Crear ID único
+                    const labId = 'lab_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                    
+                    // Obtener categoría con emoji
+                    const categoriasMap = {
+                        'seguridad': '🔒 Seguridad Web',
+                        'crypto': '🔐 Criptografía',
+                        'redes': '🌐 Redes',
+                        'malware': '🐛 Análisis de Malware',
+                        'forensica': '🔍 Forensica Digital',
+                        'programacion': '💻 Programación',
+                        'ia': '🧠 Inteligencia Artificial'
+                    };
+                    
+                    // Crear objeto del laboratorio
+                    const nuevoLab = {
+                        id: labId,
+                        titulo: titulo,
+                        descripcion: descripcion,
+                        categoria: categoria,
+                        categoriaNombre: categoriasMap[categoria] || '📚 General',
+                        autor: autor,
+                        email: usuarioActual?.email || 'anonimo@axon.edu',
+                        archivo: archivoGuardado,
+                        downloads: 0,
+                        fecha: new Date().toISOString().split('T')[0],
+                        imagen: getEmojiPorCategoria(categoria)
+                    };
+                    
+                    // Guardar en localStorage
+                    const labsExistentes = JSON.parse(localStorage.getItem('axon_laboratorios') || '[]');
+                    labsExistentes.unshift(nuevoLab);
+                    localStorage.setItem('axon_laboratorios', JSON.stringify(labsExistentes));
+                    
+                    // Mostrar éxito
+                    msgDiv.innerHTML = '<div class="alert alert-success">✅ ¡Laboratorio subido con éxito! Redirigiendo...</div>';
+                    form.reset();
+                    previewDiv.style.display = 'none';
+                    
+                    setTimeout(() => {
+                        window.location.hash = 'laboratorios';
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    msgDiv.innerHTML = '<div class="alert alert-error">❌ Error al subir el archivo. Intenta nuevamente.</div>';
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            });
+        }
+        
+        function getEmojiPorCategoria(categoria) {
+            const emojis = {
+                'seguridad': '🔒',
+                'crypto': '🔐',
+                'redes': '🌐',
+                'malware': '🐛',
+                'forensica': '🔍',
+                'programacion': '💻',
+                'ia': '🧠'
+            };
+            return emojis[categoria] || '📚';
+        }
+    })();
+</script>

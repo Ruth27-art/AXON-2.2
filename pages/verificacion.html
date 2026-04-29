@@ -1,0 +1,135 @@
+<div class="page fade-in">
+    <div class="container" style="max-width: 500px;">
+        <div class="page-header" style="text-align: center; margin-bottom: var(--space-xl);">
+            <h1>🔐 <span class="highlight">Verificar Cuenta</span></h1>
+            <p style="color: var(--text-muted);">Ingresa el código de verificación enviado a tu correo</p>
+        </div>
+        
+        <div class="form-container">
+            <form id="verificacionForm">
+                <div class="form-group">
+                    <label for="otpCode">Código de verificación (OTP)</label>
+                    <input type="text" id="otpCode" maxlength="6" placeholder="Ingresa el código de 6 dígitos" required autocomplete="off" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem;">
+                    <span class="error-message" id="errorOtp" style="display: none; color: #ff3366;">Código inválido</span>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">✅ Verificar</button>
+                </div>
+            </form>
+            
+            <p style="text-align: center; margin-top: var(--space-lg);">
+                ¿No recibiste el código? 
+                <a href="#" id="reenviarOtp" style="color: var(--color-primary);">Reenviar código</a>
+            </p>
+            
+            <div id="mensaje" style="display: none; margin-top: var(--space-md); padding: var(--space-md); border-radius: var(--radius-md);"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    
+    let emailVerificacion = sessionStorage.getItem('axon_verificacion_email');
+    
+    if (!emailVerificacion) {
+        const mensajeDiv = document.getElementById('mensaje');
+        mensajeDiv.innerHTML = '❌ No se encontró información de verificación. Por favor, regístrate nuevamente.';
+        mensajeDiv.className = 'alert alert-error';
+        mensajeDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            window.location.hash = 'registro';
+        }, 3000);
+    }
+    
+    const form = document.getElementById('verificacionForm');
+    const mensajeDiv = document.getElementById('mensaje');
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const otp = document.getElementById('otpCode').value.trim();
+        const btn = form.querySelector('button');
+        
+        if (!otp || otp.length !== 6) {
+            document.getElementById('errorOtp').style.display = 'block';
+            return;
+        }
+        
+        document.getElementById('errorOtp').style.display = 'none';
+        
+        btn.disabled = true;
+        btn.textContent = '⏳ Verificando...';
+        mensajeDiv.style.display = 'none';
+        
+        try {
+            const result = await window.verificarOTP(emailVerificacion, otp);
+            
+            mensajeDiv.style.display = 'block';
+            
+            if (result.success) {
+                mensajeDiv.innerHTML = '✅ ' + result.message;
+                mensajeDiv.className = 'alert alert-success';
+                sessionStorage.removeItem('axon_verificacion_email');
+                
+                setTimeout(() => {
+                    window.location.hash = 'inicio';
+                }, 2000);
+            } else {
+                mensajeDiv.innerHTML = '❌ ' + result.message;
+                mensajeDiv.className = 'alert alert-error';
+                btn.disabled = false;
+                btn.textContent = '✅ Verificar';
+            }
+            
+        } catch (error) {
+            console.error('Error en verificación:', error);
+            mensajeDiv.innerHTML = '❌ Error al verificar el código. Intenta nuevamente.';
+            mensajeDiv.className = 'alert alert-error';
+            mensajeDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = '✅ Verificar';
+        }
+    });
+    
+    document.getElementById('reenviarOtp').addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        const btn = e.target;
+        const originalText = btn.textContent;
+        btn.textContent = '⏳ Enviando...';
+        btn.style.pointerEvents = 'none';
+        mensajeDiv.style.display = 'none';
+        
+        try {
+            const result = await window.reenviarOTP(emailVerificacion);
+            
+            mensajeDiv.style.display = 'block';
+            
+            if (result.success) {
+                mensajeDiv.innerHTML = '✅ ' + result.message;
+                mensajeDiv.className = 'alert alert-success';
+            } else {
+                mensajeDiv.innerHTML = '❌ ' + result.message;
+                mensajeDiv.className = 'alert alert-error';
+            }
+            
+            setTimeout(() => {
+                mensajeDiv.style.display = 'none';
+            }, 3000);
+            
+        } catch (error) {
+            console.error('Error al reenviar:', error);
+            mensajeDiv.innerHTML = '❌ Error al reenviar el código. Intenta nuevamente.';
+            mensajeDiv.className = 'alert alert-error';
+            mensajeDiv.style.display = 'block';
+        } finally {
+            btn.textContent = originalText;
+            btn.style.pointerEvents = 'auto';
+        }
+    });
+})();
+</script>

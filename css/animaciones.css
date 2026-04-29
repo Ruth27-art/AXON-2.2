@@ -1,0 +1,77 @@
+/* Animaciones adicionales */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    animation: slideInRight 0.3s ease;
+}
+
+.toast-success {
+    background: rgba(0, 255, 136, 0.9);
+}
+
+.toast-error {
+    background: rgba(255, 51, 102, 0.9);
+}
+
+.toast-info {
+    background: rgba(0, 212, 255, 0.9);
+}
+
+/* Animación para el botón del chat */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(0,212,255,0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 4px 25px rgba(0,212,255,0.7);
+    }
+}
+
+#chatbotButton {
+    animation: pulse 2s infinite;
+}
+
+/* Scroll personalizado para el chat */
+#chatMessages::-webkit-scrollbar {
+    width: 4px;
+}
+
+#chatMessages::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+}
+
+#chatMessages::-webkit-scrollbar-thumb {
+    background: #00d4ff;
+    border-radius: 10px;
+}

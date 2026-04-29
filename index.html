@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AXON LABS - Repositorio Académico Profesional</title>
+    <meta name="description" content="Plataforma profesional para compartir y descubrir laboratorios académicos">
+    <meta name="theme-color" content="#0a0a0f">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/estilo.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/componentes.css">
+    <link rel="stylesheet" href="css/animaciones.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar__header">
+                <div class="sidebar__logo">
+                    <span class="logo-icon">🧠</span>
+                    <span>AXON</span>
+                </div>
+                <div class="sidebar__subtitle">Academic Labs</div>
+            </div>
+            
+            <nav class="sidebar__nav">
+                <a href="#inicio" class="nav-link active" data-page="inicio">
+                    <span class="icon">🏠</span>
+                    <span>Inicio</span>
+                </a>
+                <a href="#laboratorios" class="nav-link" data-page="laboratorios">
+                    <span class="icon">📚</span>
+                    <span>Laboratorios</span>
+                </a>
+                <a href="#categorias" class="nav-link" data-page="categorias">
+                    <span class="icon">🏷️</span>
+                    <span>Categorías</span>
+                </a>
+                <div class="sidebar__divider"></div>
+                <a href="#subir" class="nav-link" data-page="subir" id="subirNavLink">
+                    <span class="icon">📤</span>
+                    <span>Subir Lab</span>
+                </a>
+                <a href="#registro" class="nav-link" data-page="registro" id="registroNavLink">
+                    <span class="icon">📝</span>
+                    <span>Registrarse</span>
+                </a>
+                <a href="#login" class="nav-link" data-page="login" id="loginNavLink">
+                    <span class="icon">🔑</span>
+                    <span>Iniciar Sesión</span>
+                </a>
+                <a href="#" class="nav-link" id="logoutNavLink" style="display: none;">
+                    <span class="icon">🚪</span>
+                    <span>Cerrar Sesión</span>
+                </a>
+                <div class="sidebar__divider"></div>
+                <a href="#" class="nav-link" id="themeToggle">
+                    <span class="icon">🌙</span>
+                    <span>Modo Oscuro</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <button class="menu-toggle" id="menuToggle">☰</button>
+
+                <div class="user-info">
+                    <span class="user-greeting">Hola, <span id="userName">Invitado</span></span>
+                    <div class="user-avatar" id="userAvatar">
+                        <span>👤</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div id="page-content" class="page-content">
+                <div class="loader">
+                    <div class="loader-spinner"></div>
+                    <p>Cargando...</p>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="container">
+                    <div class="footer-grid">
+                        <div>
+                            <h4 class="footer-title">AXON Labs</h4>
+                            <p>Repositorio académico profesional para la comunidad educativa.</p>
+                        </div>
+                        <div>
+                            <h4 class="footer-title">Enlaces</h4>
+                            <ul class="footer-links">
+                                <li><a href="#inicio">Inicio</a></li>
+                                <li><a href="#laboratorios">Laboratorios</a></li>
+                                <li><a href="#categorias">Categorías</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="footer-title">Ayuda</h4>
+                            <ul class="footer-links">
+                                <li><a href="#">Cómo subir</a></li>
+                                <li><a href="#">Términos</a></li>
+                                <li><a href="#">Contacto</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="footer-title">Síguenos</h4>
+                            <div class="social-links">
+                                <a href="#" class="social-link">📘</a>
+                                <a href="#" class="social-link">🐦</a>
+                                <a href="#" class="social-link">📷</a>
+                                <a href="#" class="social-link">💼</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="copyright">
+                        © 2024 AXON Labs - Todos los derechos reservados
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<button class="menu-toggle" id="menuToggle">☰</button>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+
+<!-- Reemplazar los scripts al final del body por: -->
+    <script src="js/data.js"></script>
+    <script src="js/labs.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Función auxiliar para navegación desde HTML
+        window.cambiarPagina = function(page) {
+            window.location.hash = page;
+        };
+        
+        // Asegurar que las animaciones CSS existen
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    <!-- Chatbot -->
+<script src="js/bot.js"></script>
+<script>
+    // Inicializar chatbot cuando cargue la página
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof initChatbot === 'function') {
+            initChatbot();
+        }
+    });
+</script>
+</body>
+</html>

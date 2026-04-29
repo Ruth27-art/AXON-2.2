@@ -1,0 +1,29 @@
+<div class="container">
+    <h2>📚 Laboratorios Disponibles</h2>
+    
+    <div class="search-section">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar por título o descripción...">
+        </div>
+        
+        <div class="filter-group">
+            <span class="filter-label">Categoría:</span>
+            <select id="categoriaFilter" class="filter-select">
+                <option value="">Todas las categorías</option>
+                <option value="seguridad_web">🔒 Seguridad Web</option>
+                <option value="cryptografia">🔐 Criptografía</option>
+                <option value="redes">🌐 Redes</option>
+                <option value="malware">🐛 Análisis de Malware</option>
+                <option value="forensica">🔍 Forensica Digital</option>
+                <option value="programacion">💻 Programación</option>
+                <option value="ia">🧠 Inteligencia Artificial</option>
+            </select>
+            <button id="btnFiltrar" class="btn btn-primary">🔍 Filtrar</button>
+        </div>
+    </div>
+    
+    <div id="listaLaboratorios" class="labs-grid">
+        <div class="loader"><div class="loader-spinner"></div></div>
+    </div>
+</div>
